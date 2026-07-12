@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>البروجكت — SHIFT CUT Studio</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="content.js"></script>
+<script src="assets/js/video-utils.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --paper:#0A0A0A; --paper-2:#111; --paper-3:#181818;
+  --ink:#FFFFFF; --ink-soft:#C8C4BC; --ink-mute:#5A5750;
+  --line:rgba(255,255,255,0.07); --line-strong:rgba(255,255,255,0.14);
+  --red:#CC1C1C; --red-bright:#E83030;
+  --gold:#F5C400; --gold-soft:#D4A800;
+  --display:'Cairo',sans-serif; --body:'Cairo',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.8;-webkit-font-smoothing:antialiased;}
+#projectBg{
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-size:cover; background-position:center;
+  opacity:0.08;
+  transition: opacity 1s ease;
+  filter: grayscale(0.3) blur(2px);
+}
+
+/* SCANLINES */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 2px);}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.96);border-bottom:1px solid var(--line);}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;max-width:1180px;margin:0 auto;}
+.nav-logo img{height:44px;width:auto;animation:logoneon 4s ease-in-out infinite;}
+@keyframes logoneon{
+  0%  {filter:drop-shadow(0 0 6px rgba(204,28,28,0.9)) drop-shadow(0 0 14px rgba(204,28,28,0.5));}
+  25% {filter:drop-shadow(0 0 2px rgba(204,28,28,0.1));}
+  50% {filter:drop-shadow(0 0 6px rgba(26,79,204,0.9)) drop-shadow(0 0 14px rgba(26,79,204,0.5));}
+  75% {filter:drop-shadow(0 0 6px rgba(255,255,255,0.4));}
+  100%{filter:drop-shadow(0 0 6px rgba(204,28,28,0.9)) drop-shadow(0 0 14px rgba(204,28,28,0.5));}
+}
+.back-btn{font-family:var(--body);font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--ink-soft);text-decoration:none;display:flex;align-items:center;gap:8px;
+  padding:8px 16px;border:1px solid var(--line-strong);transition:all .2s;}
+.back-btn:hover{color:var(--gold);border-color:var(--gold);}
+
+/* HERO */
+.project-hero{padding:60px 32px 0;max-width:1180px;margin:0 auto;position:relative;z-index:1;}
+.project-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--red);display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.project-eyebrow::before{content:'';width:28px;height:2px;background:var(--red);}
+.project-title{font-size:clamp(28px,4vw,52px);font-weight:900;color:var(--gold);
+  line-height:1.2;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:12px;}
+.project-tag{font-size:13px;color:var(--ink-mute);font-family:var(--mono);margin-bottom:32px;}
+
+/* MAIN VIDEO */
+.main-video-wrap{width:100%;aspect-ratio:16/9;background:#000;border:1px solid var(--line-strong);
+  border-top:2px solid var(--red);overflow:hidden;position:relative;}
+.main-video-wrap iframe,.main-video-wrap video{position:absolute;inset:0;width:100%;height:100%;border:none;background:#000;}
+.main-video-wrap img.thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.main-video-wrap .video-fallback{
+  position:absolute; inset:0; display:flex; flex-direction:column; gap:10px;
+  align-items:center; justify-content:center; text-align:center;
+  background:var(--paper-2); color:var(--ink-mute); font-size:14px; padding:24px;
+}
+.main-video-wrap .video-fallback svg{opacity:0.6;}
+.extra-video-thumb .video-fallback{font-size:12px; padding:12px; gap:6px;}
+.main-video-wrap .play-overlay{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.35);cursor:pointer;transition:background .2s;
+}
+.main-video-wrap .play-overlay:hover{background:rgba(0,0,0,0.15);}
+.play-circle{width:72px;height:72px;border-radius:50%;background:var(--red);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 24px rgba(204,28,28,0.6);
+  transition:transform .2s,box-shadow .2s;}
+.play-overlay:hover .play-circle{transform:scale(1.1);box-shadow:0 0 40px rgba(204,28,28,0.8);}
+.play-circle svg{fill:#fff;width:28px;height:28px;margin-right:-4px;}
+
+/* CONTENT GRID */
+.project-body{display:grid;grid-template-columns:1fr 320px;gap:48px;padding:48px 32px;max-width:1180px;margin:0 auto;position:relative;z-index:1;}
+.project-main{}
+.project-sidebar{}
+
+/* META CARDS */
+.meta-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--red);border:1px solid var(--red);margin-bottom:40px;}
+.meta-card{background:var(--paper-2);padding:20px;}
+.meta-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:8px;font-family:var(--mono);}
+.meta-val{font-size:15px;font-weight:700;color:var(--ink);}
+
+/* DESCRIPTION */
+.project-desc,.pp-desc{
+  font-size:18px; color:var(--ink); line-height:1.9;
+  padding:24px 28px; background:var(--paper-2);
+  border-right:3px solid var(--red);
+  margin-bottom:32px;
+}
+
+/* SECTION TITLE */
+.sec-title{font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--gold);border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:20px;}
+
+/* EXTRA VIDEOS */
+.extra-videos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:40px;}
+.extra-video-card{background:var(--paper-2);border:1px solid var(--line);overflow:hidden;cursor:pointer;transition:border-color .2s;}
+.extra-video-card:hover{border-color:var(--red);}
+.extra-video-thumb{aspect-ratio:16/9;background:#000;position:relative;overflow:hidden;}
+.extra-video-thumb img{width:100%;height:100%;object-fit:cover;filter:grayscale(0.5);transition:filter .3s;}
+.extra-video-card:hover .extra-video-thumb img{filter:grayscale(0);}
+.extra-video-thumb .mini-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.mini-play-btn{width:44px;height:44px;border-radius:50%;background:rgba(204,28,28,0.85);display:flex;align-items:center;justify-content:center;}
+.mini-play-btn svg{fill:#fff;width:18px;height:18px;margin-right:-2px;}
+.extra-video-title{padding:12px;font-size:13px;font-weight:600;color:var(--ink-soft);}
+
+/* IMAGES GRID */
+.project-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;margin-bottom:40px;}
+.project-img-item{aspect-ratio:1/1;overflow:hidden;cursor:pointer;position:relative;}
+.project-img-item img{width:100%;height:100%;object-fit:cover;filter:grayscale(0.6) brightness(0.85);transition:filter .3s,transform .3s;}
+.project-img-item:hover img{filter:grayscale(0) brightness(1);transform:scale(1.04);}
+
+/* SIDEBAR */
+.sidebar-card{background:var(--paper-2);border:1px solid var(--line);border-top:2px solid var(--red);padding:24px;margin-bottom:20px;}
+.sidebar-card-title{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);margin-bottom:16px;font-family:var(--mono);}
+.sidebar-item{display:flex;flex-direction:column;gap:4px;padding:12px 0;border-bottom:1px solid var(--line);}
+.sidebar-item:last-child{border-bottom:none;}
+.sidebar-item-label{font-size:11px;color:var(--ink-mute);font-family:var(--mono);}
+.sidebar-item-val{font-size:14px;font-weight:600;color:var(--ink);}
+
+/* LIGHTBOX */
+.lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.95);align-items:center;justify-content:center;}
+.lightbox.open{display:flex;}
+.lb-inner{position:relative;max-width:90vw;max-height:90vh;display:flex;align-items:center;gap:0;}
+.lb-inner img{max-width:82vw;max-height:86vh;object-fit:contain;border:1px solid var(--line-strong);}
+.lb-close{position:fixed;top:20px;left:20px;background:rgba(255,255,255,0.1);border:none;color:#fff;
+  font-size:20px;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.lb-close:hover{background:var(--red);}
+.lb-prev,.lb-next{background:rgba(255,255,255,0.08);border:none;color:#fff;
+  font-size:32px;width:48px;height:48px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.lb-prev:hover,.lb-next:hover{background:var(--red);}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .project-body{grid-template-columns:1fr;}
+  .meta-cards{grid-template-columns:1fr;}
+  nav{padding:12px 16px;}
+  .project-hero{padding:40px 16px 0;}
+}
+</style>
+</head>
+<body>
+
+<div id="projectBg"></div>
+<header>
+  <nav>
+    <a href="index.html" class="nav-logo"><img src="assets/logo-main.png" alt="SHIFT CUT"></a>
+    <a href="index.html#work" class="back-btn">← الأعمال</a>
+  </nav>
+</header>
+
+<div class="project-hero">
+  <div class="project-eyebrow" id="pEyebrow">بروجكت</div>
+  <h1 class="project-title" id="pTitle">—</h1>
+  <div class="project-tag" id="pTag"></div>
+  <div class="main-video-wrap" id="mainVideoWrap">
+    <div class="play-overlay" id="mainPlayBtn">
+      <div class="play-circle">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="project-body">
+  <div class="project-main">
+  <!-- Description (populated by JS) -->
+    <div class="pp-desc" id="pDesc" style="display:none;"></div>
+
+  <!-- Meta -->
+    <div class="meta-cards" id="metaCards" style="display:none;">
+      <div class="meta-card"><div class="meta-label">التحدي</div><div class="meta-val" id="mChallenge"></div></div>
+      <div class="meta-card"><div class="meta-label">الحل</div><div class="meta-val" id="mSolution"></div></div>
+      <div class="meta-card"><div class="meta-label">النتيجة</div><div class="meta-val" id="mResult"></div></div>
+    </div>
+
+    <!-- Extra Videos -->
+    <div id="extraVideosSection" style="display:none;">
+      <div class="sec-title">فيديوهات البروجكت</div>
+      <div class="extra-videos-grid" id="extraVideosGrid"></div>
+    </div>
+
+    <!-- Images -->
+    <div id="extraImagesSection" style="display:none;">
+      <div class="sec-title">صور البروجكت</div>
+      <div class="project-images" id="extraImagesGrid"></div>
+    </div>
+  </div>
+
+  <div class="project-sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">تفاصيل البروجكت</div>
+      <div id="sidebarDetails"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox" onclick="closeLb()">
+  <div class="lb-inner" onclick="event.stopPropagation()">
+    <button class="lb-close" onclick="closeLb()" aria-label="إغلاق">✕</button>
+    <button class="lb-prev" onclick="lbNav(-1)" aria-label="السابق">‹</button>
+    <img id="lbImg" src="" alt="">
+    <button class="lb-next" onclick="lbNav(1)" aria-label="التالي">›</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Get project ID from URL
+  var params = new URLSearchParams(window.location.search);
+  var pid = params.get('id');
+  if(pid === null) pid = parseInt(params.get('idx'));
+
+  var items = (window.SITE_CONTENT.work||[]).filter(function(i){ return i.videoValue; });
+  var item = items[pid];
+  if(!item){ document.querySelector('.project-title').textContent = 'البروجكت مش موجود'; return; }
+
+  // Set page title
+  document.title = item.title + ' — SHIFT CUT Studio';
+
+  // Project background
+  if(item.bgImage){
+    var bg = document.getElementById('projectBg');
+    bg.style.backgroundImage = 'url('+item.bgImage+')';
+  } else if(item.poster){
+    var bg = document.getElementById('projectBg');
+    bg.style.backgroundImage = 'url('+item.poster+')';
+  }
+
+  // Fill header
+  document.getElementById('pEyebrow').textContent = item.tag || 'بروجكت';
+  document.getElementById('pTitle').textContent = item.title;
+  document.getElementById('pTag').textContent = item.category || '';
+
+  // Main video
+  var wrap = document.getElementById('mainVideoWrap');
+  var playBtn = document.getElementById('mainPlayBtn');
+  var getThumb = window.VideoUtils.getThumbUrl;
+
+  // No video attached at all — show a clear message instead of a dead play button.
+  if(!item.videoValue){
+    wrap.innerHTML = window.VideoUtils.getEmbedMarkup('', '');
+  } else {
+    // Poster or auto thumb
+    if(item.poster){
+      var pImg = document.createElement('img');
+      pImg.className = 'thumb'; pImg.src = item.poster;
+      wrap.insertBefore(pImg, playBtn);
+    } else {
+      var thumb = getThumb(item.videoType, item.videoValue);
+      if(thumb){
+        var tImg = document.createElement('img');
+        tImg.className = 'thumb'; tImg.src = thumb;
+        tImg.onerror = function(){ this.remove(); };
+        wrap.insertBefore(tImg, playBtn);
+      }
+    }
+
+    // Play main video (guard against double-mount if the user clicks twice)
+    var mainPlayed = false;
+    playBtn.addEventListener('click', function(){
+      if(mainPlayed) return;
+      mainPlayed = true;
+      var mounted = window.VideoUtils.mountEmbed(wrap, item.videoType, item.videoValue);
+      if(mounted && mounted.tagName === 'IFRAME' && item.videoType === 'youtube'){
+        window.VideoUtils.watchYoutubeEnd(mounted, playNextInCategory);
+      } else if(mounted && mounted.tagName === 'VIDEO'){
+        window.VideoUtils.watchLocalVideoEnd(mounted, playNextInCategory);
+      }
+    });
+  }
+
+  // Meta
+  if(item.challenge || item.solution || item.result){
+    document.getElementById('metaCards').style.display = 'grid';
+    document.getElementById('mChallenge').textContent = item.challenge || '—';
+    document.getElementById('mSolution').textContent  = item.solution  || '—';
+    document.getElementById('mResult').textContent    = item.result    || '—';
+  }
+
+  // Description
+  if(item.description){
+    var d = document.getElementById('pDesc');
+    // Support line breaks
+    d.innerHTML = item.description.replace(/\n/g,'<br>');
+    d.style.display = 'block';
+  }
+
+  // Extra videos
+  var extraVids = item.extraVideos || [];
+  if(extraVids.length){
+    document.getElementById('extraVideosSection').style.display = 'block';
+    var grid = document.getElementById('extraVideosGrid');
+    extraVids.forEach(function(v, vi){
+      if(!v.value) return;
+      var thumb = getThumb(v.type, v.value);
+      var card = document.createElement('div');
+      card.className = 'extra-video-card';
+      card.innerHTML =
+        '<div class="extra-video-thumb">'
+        +(thumb?'<img src="'+thumb+'" onerror="this.remove()">':'')
+        +'<div class="mini-play"><div class="mini-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>'
+        +'</div>'
+        +(v.title?'<div class="extra-video-title">'+v.title+'</div>':'');
+      var thumbEl = card.querySelector('.extra-video-thumb');
+      var extraPlayed = false;
+      thumbEl.addEventListener('click', function(){
+        if(extraPlayed) return;
+        extraPlayed = true;
+        window.VideoUtils.mountEmbed(thumbEl, v.type, v.value);
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  // Extra images
+  var extraImgs = item.extraImages || [];
+  var validImgs = extraImgs.filter(function(img){ return img.src; });
+  if(validImgs.length){
+    document.getElementById('extraImagesSection').style.display = 'block';
+    var imgGrid = document.getElementById('extraImagesGrid');
+    validImgs.forEach(function(img, ii){
+      var div = document.createElement('div');
+      div.className = 'project-img-item';
+      div.innerHTML = '<img src="'+img.src+'" alt="'+(img.caption||'')+'" loading="lazy">';
+      div.addEventListener('click', function(){ openLb(ii); });
+      imgGrid.appendChild(div);
+    });
+  }
+
+  // Sidebar
+  var sidebar = document.getElementById('sidebarDetails');
+  var details = [
+    { label:'الفئة', val:item.category||'—' },
+    { label:'النوع', val:item.tag||'—' },
+    { label:'الفيديوهات الإضافية', val:(extraVids.filter(function(v){return v.value;}).length||0)+' فيديو' },
+    { label:'الصور', val:validImgs.length+' صورة' },
+  ];
+  sidebar.innerHTML = details.map(function(d){
+    return '<div class="sidebar-item"><div class="sidebar-item-label">'+d.label+'</div><div class="sidebar-item-val">'+d.val+'</div></div>';
+  }).join('');
+
+  // Lightbox
+  var lbCurrent = 0;
+  window.openLb = function(i){
+    lbCurrent = i;
+    document.getElementById('lbImg').src = validImgs[i].src;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeLb = function(){
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+  window.lbNav = function(dir){
+    lbCurrent = (lbCurrent+dir+validImgs.length)%validImgs.length;
+    openLb(lbCurrent);
+  };
+  document.addEventListener('keydown',function(e){
+    if(!document.getElementById('lightbox').classList.contains('open')) return;
+    if(e.key==='ArrowLeft') lbNav(-1);
+    if(e.key==='ArrowRight') lbNav(1);
+    if(e.key==='Escape') closeLb();
+  });
+})();
+</script>
+
+<script>
+// Auto-next video from the same category when the current one ends.
+// Called directly by VideoUtils (real YouTube "ended" event / native <video> "ended"),
+// not by the old unsolicited-postMessage listener, which YouTube never actually sends
+// without a completed IFrame API handshake.
+function playNextInCategory(){
+  var params = new URLSearchParams(window.location.search);
+  var currentId = parseInt(params.get('id'), 10);
+  var allItems = (window.SITE_CONTENT && window.SITE_CONTENT.work || []).filter(function(i){ return i.videoValue; });
+  var currentItem = allItems[currentId];
+  if(!currentItem) return;
+
+  // Find next item in same category
+  var sameCategory = [];
+  allItems.forEach(function(item, idx){
+    if(item.category === currentItem.category) sameCategory.push(idx);
+  });
+
+  var posInCat = sameCategory.indexOf(currentId);
+  var nextIdx = sameCategory[(posInCat + 1) % sameCategory.length];
+  if(nextIdx === currentId) return; // only one item in this category
+
+  var nextItem = allItems[nextIdx];
+  var wrap = document.getElementById('mainVideoWrap');
+  if(!wrap) return;
+
+  var nextThumb = nextItem.poster || window.VideoUtils.getThumbUrl(nextItem.videoType, nextItem.videoValue);
+
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;';
+
+  var label = document.createElement('div');
+  label.style.cssText = 'font-family:var(--body);font-size:13px;color:rgba(255,255,255,0.6);letter-spacing:0.1em;text-transform:uppercase;';
+  label.textContent = 'التالي في نفس القسم';
+  overlay.appendChild(label);
+
+  if(nextThumb){
+    var img = document.createElement('img');
+    img.src = nextThumb;
+    img.style.cssText = 'width:200px;height:112px;object-fit:cover;border:2px solid var(--red);';
+    img.onerror = function(){ this.remove(); };
+    overlay.appendChild(img);
+  }
+
+  var title = document.createElement('div');
+  title.style.cssText = 'font-family:var(--body);font-size:17px;font-weight:700;color:#fff;text-align:center;max-width:300px;';
+  title.textContent = nextItem.title;
+  overlay.appendChild(title);
+
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:12px;';
+
+  var playNowBtn = document.createElement('button');
+  playNowBtn.style.cssText = 'background:var(--red);border:none;color:#fff;font-family:var(--body);font-size:14px;font-weight:700;padding:12px 24px;cursor:pointer;letter-spacing:0.05em;';
+  playNowBtn.textContent = '▶ شغّل';
+  playNowBtn.addEventListener('click', function(){
+    window.location.href = 'project.html?id=' + nextIdx;
+  });
+  btnRow.appendChild(playNowBtn);
+
+  var dismissBtn = document.createElement('button');
+  dismissBtn.style.cssText = 'background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);color:#fff;font-family:var(--body);font-size:14px;padding:12px 20px;cursor:pointer;';
+  dismissBtn.textContent = 'تجاهل';
+  btnRow.appendChild(dismissBtn);
+
+  overlay.appendChild(btnRow);
+  wrap.appendChild(overlay);
+
+  // Auto-redirect countdown; cancelled if the user dismisses the overlay.
+  var countdown = 8;
+  var timer = setInterval(function(){
+    countdown--;
+    playNowBtn.textContent = '▶ شغّل (' + countdown + ')';
+    if(countdown <= 0){
+      clearInterval(timer);
+      window.location.href = 'project.html?id=' + nextIdx;
+    }
+  }, 1000);
+
+  dismissBtn.addEventListener('click', function(){
+    clearInterval(timer);
+    overlay.remove();
+  });
+}
+</script>
+
+</body>
+</html>
